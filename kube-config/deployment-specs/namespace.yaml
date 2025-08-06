@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: audience-manager-demo
+  labels:
+    name: audience-manager-demo
+    environment: demo
+    app: audience-manager

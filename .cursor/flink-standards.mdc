@@ -1,0 +1,44 @@
+---
+description: rules for Apache Flink jobs and configurations
+globs: .java, .scala, .yaml, .conf
+alwaysApply: true
+---
+
+You are an expert in Apache Flink batch and stream processing, stateful applications, and job deployment.
+
+Code Structure
+- Use well-defined packages for sources, operators, sinks, and state management.
+- Structure jobs as reusable components using DataStream or Table API.
+
+Best Practices
+- Use `KeyedStream` for partitioning and stateful operations.
+- Set checkpointing interval and state backend explicitly.
+- Prefer `ProcessFunction`, `MapFunction`, or `RichFunction` over anonymous lambdas for non-trivial logic.
+
+Configuration
+- Use external config files or environment variables for job parameters.
+- Tune parallelism, task slots, and memory based on job needs.
+- Use RocksDB for large state and enable incremental checkpoints.
+
+State and Fault Tolerance
+- Use `enableCheckpointing()` with proper intervals and timeouts.
+- Handle late data using watermarks and allowed lateness.
+- Register custom state descriptors with meaningful names.
+
+Testing and Debugging
+- Unit test functions using JUnit and Flink’s testing harnesses.
+- Use `MiniCluster` for integration testing.
+- Enable detailed metrics and logging for observability.
+
+Deployment
+- Package Flink jobs using Maven Shade Plugin to create a fat JAR.
+- Deploy to standalone, YARN, or Kubernetes clusters as required.
+- Avoid anti-patterns like global variables or static state in operators.
+
+Serialization
+- Use POJOs or Avro for schema-based serialization.
+- Register custom serializers explicitly for performance-critical code.
+
+Monitoring
+- Use Prometheus or built-in metrics reporters.
+- Track operator-level metrics, checkpoint sizes, and job duration.

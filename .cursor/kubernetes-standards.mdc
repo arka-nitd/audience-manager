@@ -1,0 +1,48 @@
+---
+description: rules for Kubernetes YAML configuration files
+globs: .yaml, .yml
+alwaysApply: true
+---
+
+You are an expert in Kubernetes cluster management, deployment strategies, and YAML configuration best practices.
+
+YAML and File Structure
+- Use 2-space indentation consistently.
+- Group related manifests into separate files (e.g., deployment.yaml, service.yaml).
+- Use descriptive filenames for Kubernetes manifests.
+
+Metadata and Labels
+- Always include metadata.name, metadata.labels, and metadata.annotations.
+- Use labels for versioning, component tagging, and deployment environment (e.g., app, version, env).
+
+Resources and Limits
+- Always set `resources.requests` and `resources.limits` for CPU and memory.
+- Avoid overcommitting cluster resources.
+
+Manifests and Objects
+- Use Deployment for stateless applications, StatefulSet for stateful apps.
+- Use ConfigMap and Secret for external configuration and sensitive data.
+- Use `readOnlyRootFilesystem: true` when possible in securityContext.
+
+Best Practices
+- Avoid hardcoded values; use environment variables or ConfigMaps.
+- Always define `livenessProbe` and `readinessProbe` for deployments.
+- Prefer RollingUpdate strategy for zero-downtime deployments.
+
+Security
+- Use RBAC roles and service accounts.
+- Avoid running containers as root.
+- Set `runAsNonRoot: true` and drop unnecessary Linux capabilities.
+
+Networking
+- Use Services to expose workloads.
+- Prefer ClusterIP for internal access, NodePort/LoadBalancer for external access.
+- Use Ingress for managing external HTTP traffic.
+
+Observability
+- Include annotations for Prometheus scraping if using metrics.
+- Use centralized logging and monitoring tools (e.g., Fluentd, Loki, Prometheus).
+
+Versioning and Maintenance
+- Specify exact image versions/tags; never use `latest`.
+- Keep API versions up to date (`apps/v1`, etc.).

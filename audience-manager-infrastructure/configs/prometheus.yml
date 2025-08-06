@@ -1,0 +1,45 @@
+# Prometheus configuration for Audience Manager monitoring
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Audience Manager API Service
+  - job_name: 'audience-manager-api'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8081']
+    scrape_interval: 5s
+
+  # Audience Manager Ingestion Service
+  - job_name: 'audience-manager-ingestion'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8082']
+    scrape_interval: 5s
+
+  # Flink JobManager
+  - job_name: 'flink-jobmanager'
+    static_configs:
+      - targets: ['flink-jobmanager:8081']
+    metrics_path: '/metrics'
+
+  # Kafka JMX Metrics
+  - job_name: 'kafka'
+    static_configs:
+      - targets: ['kafka:9101']
+
+  # Aerospike monitoring (custom exporter would be needed)
+  # - job_name: 'aerospike'
+  #   static_configs:
+  #     - targets: ['aerospike-exporter:9145']

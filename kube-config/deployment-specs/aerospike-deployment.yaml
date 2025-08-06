@@ -1,0 +1,190 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aerospike
+  namespace: audience-manager-demo
+  labels:
+    app: aerospike
+    component: cache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aerospike
+  template:
+    metadata:
+      labels:
+        app: aerospike
+        component: cache
+    spec:
+      containers:
+      - name: aerospike
+        image: aerospike/aerospike-server:6.4.0.8
+        ports:
+        - containerPort: 3000
+          name: service
+        - containerPort: 3001
+          name: fabric
+        - containerPort: 3002
+          name: heartbeat
+        - containerPort: 3003
+          name: info
+        resources:
+          requests:
+            memory: "800Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        env:
+        - name: AEROSPIKE_MESH_SEED_ADDRESS_PORT
+          value: "3002"
+        volumeMounts:
+        - mountPath: /opt/aerospike/data
+          name: aerospike-data
+        - mountPath: /etc/aerospike/aerospike.conf
+          name: aerospike-config
+          subPath: aerospike.conf
+        readinessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - "asinfo -v status | grep -q 'ok'"
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        livenessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - "asinfo -v status | grep -q 'ok'"
+          initialDelaySeconds: 30
+          periodSeconds: 15
+      volumes:
+      - name: aerospike-data
+        emptyDir: {}  # For demo purposes - data will be lost on restart
+      - name: aerospike-config
+        configMap:
+          name: aerospike-config
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aerospike-config
+  namespace: audience-manager-demo
+data:
+  aerospike.conf: |
+    # Aerospike configuration optimized for demo environment
+    # Memory-only storage for fast demo performance
+    
+    service {
+        user root
+        group root
+        paxos-single-replica-limit 1
+        pidfile /var/run/aerospike/asd.pid
+        proto-fd-max 1000
+        service-threads 2           # Limited for demo environment
+        transaction-queues 2        # Limited for demo environment
+        transaction-threads-per-queue 2
+    }
+    
+    logging {
+        file /var/log/aerospike/aerospike.log {
+            context any info
+        }
+        console {
+            context any info
+        }
+    }
+    
+    network {
+        service {
+            address any
+            port 3000
+        }
+        
+        heartbeat {
+            mode mesh
+            port 3002
+            address any
+            interval 150
+            timeout 10
+        }
+        
+        fabric {
+            port 3001
+        }
+        
+        info {
+            port 3003
+        }
+    }
+    
+    # Demo namespace for user profiles and segment mappings
+    namespace user_profiles {
+        replication-factor 1
+        memory-size 400M            # 40% of 1GB allocation
+        storage-engine memory       # Memory-only for demo speed
+        
+        # Demo-optimized settings
+        default-ttl 0               # No expiration for demo data
+        high-water-memory-pct 85    # Allow high memory usage
+        stop-writes-pct 95          # Conservative stop-writes
+    }
+    
+    # Demo namespace for session data and rule cache
+    namespace cache {
+        replication-factor 1
+        memory-size 400M            # 40% of 1GB allocation
+        storage-engine memory       # Memory-only for demo speed
+        
+        # Cache-specific settings
+        default-ttl 3600            # 1 hour TTL for cache entries
+        high-water-memory-pct 90    # Higher threshold for cache
+        stop-writes-pct 95          # Conservative stop-writes
+        
+        # Eviction policy for cache namespace
+        evict-tenths-pct 5          # Evict 5% when at high-water-mark
+    }
+    
+    # Demo namespace for real-time analytics
+    namespace analytics {
+        replication-factor 1
+        memory-size 200M            # 20% of 1GB allocation
+        storage-engine memory       # Memory-only for demo speed
+        
+        # Analytics-specific settings
+        default-ttl 86400           # 24 hour TTL for analytics data
+        high-water-memory-pct 90    # Higher threshold for analytics
+        stop-writes-pct 95          # Conservative stop-writes
+    }
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aerospike-service
+  namespace: audience-manager-demo
+  labels:
+    app: aerospike
+    component: cache
+spec:
+  type: NodePort
+  ports:
+  - name: service
+    port: 3000
+    targetPort: 3000
+    nodePort: 30300
+  - name: fabric
+    port: 3001
+    targetPort: 3001
+  - name: heartbeat
+    port: 3002
+    targetPort: 3002
+  - name: info
+    port: 3003
+    targetPort: 3003
+  selector:
+    app: aerospike

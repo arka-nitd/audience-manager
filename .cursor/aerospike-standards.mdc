@@ -1,0 +1,47 @@
+---
+description: rules for Aerospike schema design, configuration, and client usage
+globs: .java, .conf
+alwaysApply: true
+---
+
+You are an expert in Aerospike distributed key-value data store design, indexing, and client optimization.
+
+Data Modeling
+- Design schemas with namespace:set:key layout in mind.
+- Avoid hot key patterns by using balanced key hashing.
+- Use bins with appropriate types; avoid storing large JSON blobs.
+
+Indexing
+- Create secondary indexes only when necessary.
+- Prefer numeric types for indexed bins for performance.
+- Use batch reads and scans judiciously to avoid cluster overload.
+
+Client Usage (Java)
+- Use a shared AerospikeClient instance across the application.
+- Use `WritePolicy`, `ReadPolicy`, and `BatchPolicy` appropriately.
+- Use async APIs (`AsyncClient`) for high-throughput use cases.
+
+Configuration
+- Configure replication-factor, memory-size, and storage-engine correctly in `aerospike.conf`.
+- Enable data-in-memory for fast access if dataset fits in RAM.
+- Set appropriate eviction policies and TTL settings.
+
+Durability and Performance
+- Use SSDs with appropriate write-block sizes and disable OS-level caching.
+- Enable durable delete and strong consistency if required.
+- Monitor write amplification and tune defrag parameters.
+
+Security
+- Configure TLS and authentication (especially for multi-tenant use).
+- Apply access control using roles and ACLs.
+- Avoid root user for applications.
+
+Monitoring and Troubleshooting
+- Use Aerospike Monitoring tools (AMC, Prometheus exporter).
+- Track latency histograms, client retries, and disk usage.
+- Enable slow query logging and transaction debug logs.
+
+Operational Best Practices
+- Avoid large scan jobs during peak hours.
+- Use set-level TTL and expiration when needed.
+- Backup data periodically using `asbackup`.

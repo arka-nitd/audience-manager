@@ -1,0 +1,51 @@
+---
+description: rules for Apache Kafka producers, consumers, and configuration
+globs: .java, .properties, .yaml
+alwaysApply: true
+---
+
+You are an expert in Kafka distributed messaging systems, stream processing, and schema design.
+
+Topic and Schema Design
+- Design topics around event types, not services.
+- Use compact topic names and document them.
+- Use Avro or Protobuf with a schema registry for message formats.
+
+Producer Best Practices
+- Use idempotent producers for safe retries.
+- Set `acks=all` for strong durability.
+- Tune batch size, linger.ms, and compression for throughput.
+
+Consumer Best Practices
+- Use consumer groups for parallelism.
+- Always commit offsets manually in critical systems.
+- Handle rebalancing and implement retry logic with backoff.
+
+Kafka Streams
+- Use DSL (StreamsBuilder) for simple cases, Processor API for advanced logic.
+- Enable state stores only when needed and persist them appropriately.
+- Use timestamp extractors for event-time processing.
+
+Configuration
+- Keep `bootstrap.servers`, `key.serializer`, and `value.serializer` explicitly defined.
+- Use secure protocols (`SSL`, `SASL`) in production environments.
+- Set retention policies and cleanup strategies per topic.
+
+Testing and Monitoring
+- Use embedded Kafka (e.g., `EmbeddedKafkaRule`) in tests.
+- Track consumer lag and throughput via Prometheus or JMX.
+- Log producer/consumer metrics (record send time, queue size, etc.).
+
+Error Handling
+- Implement dead-letter queues for unprocessable messages.
+- Avoid tight retry loops or infinite retries.
+- Log and tag poisoned messages for further inspection.
+
+Security
+- Use SASL_SSL and enable ACLs.
+- Limit topic access by role or service.
+
+Operational Practices
+- Avoid too many partitions per broker.
+- Use partition keys for ordering and balanced consumption.
+- Reassign partitions carefully during scaling or maintenance.

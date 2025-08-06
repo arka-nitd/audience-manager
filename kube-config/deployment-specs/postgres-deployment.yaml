@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: audience-manager-demo
+  labels:
+    app: postgres
+    component: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+        component: database
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15.5-alpine
+        ports:
+        - containerPort: 5432
+          name: postgres
+        resources:
+          requests:
+            memory: "400Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        env:
+        - name: POSTGRES_DB
+          value: "audience_manager"
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          value: "demo123"
+        - name: PGDATA
+          value: "/var/lib/postgresql/data/pgdata"
+        # Demo-optimized PostgreSQL configuration
+        - name: POSTGRES_INITDB_ARGS
+          value: "--data-checksums"
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: postgres-storage
+        - mountPath: /etc/postgresql/postgresql.conf
+          name: postgres-config
+          subPath: postgresql.conf
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "pg_isready -U postgres"
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "pg_isready -U postgres"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+      volumes:
+      - name: postgres-storage
+        emptyDir: {}  # For demo purposes - data will be lost on restart
+      - name: postgres-config
+        configMap:
+          name: postgres-config
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: audience-manager-demo
+data:
+  postgresql.conf: |
+    # Demo-optimized PostgreSQL configuration for 512MB memory limit
+    
+    # Memory settings optimized for demo environment
+    shared_buffers = 128MB                    # 25% of 512MB
+    effective_cache_size = 256MB              # 50% of 512MB
+    maintenance_work_mem = 32MB               # Conservative for demo
+    work_mem = 4MB                            # Small queries in demo
+    
+    # Connection settings
+    max_connections = 20                      # Limited for demo
+    
+    # WAL and checkpointing - optimized for demo performance
+    wal_buffers = 4MB
+    checkpoint_completion_target = 0.7
+    
+    # Query tuning for demo workloads
+    random_page_cost = 1.1                    # SSD assumption
+    effective_io_concurrency = 200            # SSD assumption
+    
+    # Logging for demo debugging
+    log_statement = 'all'                     # Log all statements for demo
+    log_duration = on                         # Log query duration
+    log_min_duration_statement = 100ms       # Log slow queries
+    
+    # Demo-specific settings
+    fsync = off                               # Unsafe but faster for demo
+    synchronous_commit = off                  # Unsafe but faster for demo
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: audience-manager-demo
+  labels:
+    app: postgres
+    component: database
+spec:
+  type: NodePort
+  ports:
+  - port: 5432
+    targetPort: 5432
+    nodePort: 30432
+    name: postgres
+  selector:
+    app: postgres

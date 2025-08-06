@@ -1,0 +1,42 @@
+---
+description: rules for Helm charts and templates
+globs: .yaml, .tpl
+alwaysApply: true
+---
+
+You are an expert in Helm templating, chart development, and deployment automation using Helm.
+
+Helm Chart Structure
+- Follow standard Helm structure: `Chart.yaml`, `values.yaml`, `templates/`, `charts/`.
+- Use consistent naming and modularize templates (`_helpers.tpl`, etc.).
+
+Templating Best Practices
+- Use `{{ .Values.<param> }}` for configurable parameters.
+- Provide sane defaults in `values.yaml`.
+- Avoid deeply nested conditional logic in templates.
+
+Parameterization and Reuse
+- Use `tpl` for rendering strings with templates.
+- Use helper templates for label generation and common metadata blocks.
+- Define resource names using templates like `{{ include "mychart.fullname" . }}`.
+
+Versioning and Dependencies
+- Keep `Chart.yaml` metadata updated with version and appVersion.
+- Manage dependencies using `requirements.yaml` or `Chart.yaml` + `charts/`.
+
+Validation and Testing
+- Use `helm lint` before packaging or installing.
+- Write unit tests using tools like [helm-unittest](https://github.com/quintush/helm-unittest).
+- Use `helm template` to test output rendering.
+
+Security and Image Management
+- Never default to `latest` tag in values.yaml.
+- Allow passing of image repository, tag, and pull policy via `values.yaml`.
+
+Deployment Strategies
+- Enable optional features like autoscaling via conditionals in values.yaml.
+- Use configuration toggles (`enabled: true/false`) for optional services.
+
+Documentation
+- Include README.md describing chart usage and configuration.
+- Document all configurable parameters in `values.yaml`.

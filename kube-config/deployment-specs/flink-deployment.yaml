@@ -1,0 +1,206 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flink-jobmanager
+  namespace: audience-manager-demo
+  labels:
+    app: flink-jobmanager
+    component: stream-processing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flink-jobmanager
+  template:
+    metadata:
+      labels:
+        app: flink-jobmanager
+        component: stream-processing
+    spec:
+      containers:
+      - name: flink-jobmanager
+        image: flink:1.17.1-scala_2.12-java11
+        args: ["jobmanager"]
+        ports:
+        - containerPort: 6123
+          name: rpc
+        - containerPort: 8081
+          name: webui
+        resources:
+          requests:
+            memory: "400Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+        env:
+        - name: FLINK_PROPERTIES
+          value: |
+            jobmanager.rpc.address: flink-jobmanager-service
+            taskmanager.numberOfTaskSlots: 2
+            parallelism.default: 2
+            jobmanager.memory.process.size: 400m
+            jobmanager.memory.flink.size: 300m
+            jobmanager.memory.jvm-overhead.min: 64m
+            jobmanager.memory.jvm-overhead.max: 128m
+            state.backend: rocksdb
+            state.checkpoints.dir: file:///tmp/flink-checkpoints
+            state.savepoints.dir: file:///tmp/flink-savepoints
+            rest.flamegraph.enabled: true
+            # Demo-specific optimizations
+            taskmanager.memory.network.min: 32m
+            taskmanager.memory.network.max: 64m
+            execution.checkpointing.interval: 30s
+            execution.checkpointing.mode: EXACTLY_ONCE
+            execution.checkpointing.timeout: 60s
+            execution.checkpointing.max-concurrent-checkpoints: 1
+        volumeMounts:
+        - mountPath: /tmp/flink-checkpoints
+          name: flink-checkpoints
+        - mountPath: /tmp/flink-savepoints
+          name: flink-savepoints
+        readinessProbe:
+          httpGet:
+            path: /overview
+            port: 8081
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /overview
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 15
+      volumes:
+      - name: flink-checkpoints
+        emptyDir: {}
+      - name: flink-savepoints
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flink-jobmanager-service
+  namespace: audience-manager-demo
+  labels:
+    app: flink-jobmanager
+    component: stream-processing
+spec:
+  type: NodePort
+  ports:
+  - name: rpc
+    port: 6123
+    targetPort: 6123
+  - name: webui
+    port: 8081
+    targetPort: 8081
+    nodePort: 30881
+  selector:
+    app: flink-jobmanager
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flink-taskmanager
+  namespace: audience-manager-demo
+  labels:
+    app: flink-taskmanager
+    component: stream-processing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flink-taskmanager
+  template:
+    metadata:
+      labels:
+        app: flink-taskmanager
+        component: stream-processing
+    spec:
+      containers:
+      - name: flink-taskmanager
+        image: flink:1.17.1-scala_2.12-java11
+        args: ["taskmanager"]
+        ports:
+        - containerPort: 6122
+          name: rpc
+        resources:
+          requests:
+            memory: "1200Mi"
+            cpu: "400m"
+          limits:
+            memory: "1536Mi"
+            cpu: "2000m"
+        env:
+        - name: FLINK_PROPERTIES
+          value: |
+            jobmanager.rpc.address: flink-jobmanager-service
+            taskmanager.numberOfTaskSlots: 2
+            parallelism.default: 2
+            taskmanager.memory.process.size: 1200m
+            taskmanager.memory.flink.size: 900m
+            taskmanager.memory.task.heap.size: 384m
+            taskmanager.memory.managed.size: 384m
+            taskmanager.memory.network.min: 32m
+            taskmanager.memory.network.max: 64m
+            taskmanager.memory.jvm-overhead.min: 64m
+            taskmanager.memory.jvm-overhead.max: 128m
+            # Demo-specific optimizations
+            taskmanager.numberOfTaskSlots: 2
+            taskmanager.memory.managed.fraction: 0.4
+            state.backend: rocksdb
+            state.backend.rocksdb.memory.managed: true
+            state.backend.rocksdb.memory.fixed-per-slot: 32m
+            state.checkpoints.dir: file:///tmp/flink-checkpoints
+            state.savepoints.dir: file:///tmp/flink-savepoints
+            # Network buffer settings for demo
+            taskmanager.network.memory.fraction: 0.1
+            taskmanager.network.memory.min: 32m
+            taskmanager.network.memory.max: 64m
+        volumeMounts:
+        - mountPath: /tmp/flink-checkpoints
+          name: flink-checkpoints
+        - mountPath: /tmp/flink-savepoints
+          name: flink-savepoints
+        readinessProbe:
+          httpGet:
+            path: /taskmanagers
+            port: 8081
+            host: flink-jobmanager-service
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /taskmanagers
+            port: 8081
+            host: flink-jobmanager-service
+          initialDelaySeconds: 30
+          periodSeconds: 15
+      initContainers:
+      - name: wait-for-jobmanager
+        image: busybox:1.35
+        command: ['sh', '-c', 'until nc -z flink-jobmanager-service 6123; do echo waiting for jobmanager; sleep 5; done']
+      volumes:
+      - name: flink-checkpoints
+        emptyDir: {}
+      - name: flink-savepoints
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flink-taskmanager-service
+  namespace: audience-manager-demo
+  labels:
+    app: flink-taskmanager
+    component: stream-processing
+spec:
+  ports:
+  - name: rpc
+    port: 6122
+    targetPort: 6122
+  selector:
+    app: flink-taskmanager
