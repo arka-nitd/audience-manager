@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: aerospike
-        image: aerospike/aerospike-server:6.4.0.8
+        image: aerospike/aerospike-server:6.4.0.1
         ports:
         - containerPort: 3000
           name: service
@@ -42,9 +42,12 @@ spec:
         volumeMounts:
         - mountPath: /opt/aerospike/data
           name: aerospike-data
-        - mountPath: /etc/aerospike/aerospike.conf
+        - mountPath: /opt/aerospike/etc/aerospike.conf
           name: aerospike-config
           subPath: aerospike.conf
+        args:
+        - "--config-file"
+        - "/opt/aerospike/etc/aerospike.conf"
         readinessProbe:
           exec:
             command:
@@ -80,14 +83,9 @@ data:
     # Memory-only storage for fast demo performance
     
     service {
-        user root
-        group root
-        paxos-single-replica-limit 1
         pidfile /var/run/aerospike/asd.pid
-        proto-fd-max 1000
-        service-threads 2           # Limited for demo environment
-        transaction-queues 2        # Limited for demo environment
-        transaction-threads-per-queue 2
+        proto-fd-max 1024
+        service-threads 4           # Adjusted for demo environment
     }
     
     logging {
@@ -137,11 +135,12 @@ data:
     # Demo namespace for session data and rule cache
     namespace cache {
         replication-factor 1
-        memory-size 400M            # 40% of 1GB allocation
+        memory-size 500M            # 50% of 1GB allocation
         storage-engine memory       # Memory-only for demo speed
         
         # Cache-specific settings
         default-ttl 3600            # 1 hour TTL for cache entries
+        nsup-period 120             # Run namespace supervisor every 2 minutes
         high-water-memory-pct 90    # Higher threshold for cache
         stop-writes-pct 95          # Conservative stop-writes
         
@@ -149,17 +148,7 @@ data:
         evict-tenths-pct 5          # Evict 5% when at high-water-mark
     }
     
-    # Demo namespace for real-time analytics
-    namespace analytics {
-        replication-factor 1
-        memory-size 200M            # 20% of 1GB allocation
-        storage-engine memory       # Memory-only for demo speed
-        
-        # Analytics-specific settings
-        default-ttl 86400           # 24 hour TTL for analytics data
-        high-water-memory-pct 90    # Higher threshold for analytics
-        stop-writes-pct 95          # Conservative stop-writes
-    }
+
 
 ---
 apiVersion: v1
