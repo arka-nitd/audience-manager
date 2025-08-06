@@ -28,10 +28,10 @@ spec:
           name: webui
         resources:
           requests:
-            memory: "400Mi"
+            memory: "700Mi"
             cpu: "200m"
           limits:
-            memory: "512Mi"
+            memory: "1Gi"
             cpu: "1000m"
         env:
         - name: FLINK_PROPERTIES
@@ -39,17 +39,11 @@ spec:
             jobmanager.rpc.address: flink-jobmanager-service
             taskmanager.numberOfTaskSlots: 2
             parallelism.default: 2
-            jobmanager.memory.process.size: 400m
-            jobmanager.memory.flink.size: 300m
-            jobmanager.memory.jvm-overhead.min: 64m
-            jobmanager.memory.jvm-overhead.max: 128m
+            jobmanager.memory.heap.size: 400m
             state.backend: rocksdb
             state.checkpoints.dir: file:///tmp/flink-checkpoints
             state.savepoints.dir: file:///tmp/flink-savepoints
             rest.flamegraph.enabled: true
-            # Demo-specific optimizations
-            taskmanager.memory.network.min: 32m
-            taskmanager.memory.network.max: 64m
             execution.checkpointing.interval: 30s
             execution.checkpointing.mode: EXACTLY_ONCE
             execution.checkpointing.timeout: 60s
@@ -128,7 +122,7 @@ spec:
           name: rpc
         resources:
           requests:
-            memory: "1200Mi"
+            memory: "1Gi"
             cpu: "400m"
           limits:
             memory: "1536Mi"
@@ -139,45 +133,15 @@ spec:
             jobmanager.rpc.address: flink-jobmanager-service
             taskmanager.numberOfTaskSlots: 2
             parallelism.default: 2
-            taskmanager.memory.process.size: 1200m
-            taskmanager.memory.flink.size: 900m
-            taskmanager.memory.task.heap.size: 384m
-            taskmanager.memory.managed.size: 384m
-            taskmanager.memory.network.min: 32m
-            taskmanager.memory.network.max: 64m
-            taskmanager.memory.jvm-overhead.min: 64m
-            taskmanager.memory.jvm-overhead.max: 128m
-            # Demo-specific optimizations
-            taskmanager.numberOfTaskSlots: 2
-            taskmanager.memory.managed.fraction: 0.4
             state.backend: rocksdb
-            state.backend.rocksdb.memory.managed: true
-            state.backend.rocksdb.memory.fixed-per-slot: 32m
             state.checkpoints.dir: file:///tmp/flink-checkpoints
             state.savepoints.dir: file:///tmp/flink-savepoints
-            # Network buffer settings for demo
-            taskmanager.network.memory.fraction: 0.1
-            taskmanager.network.memory.min: 32m
-            taskmanager.network.memory.max: 64m
         volumeMounts:
         - mountPath: /tmp/flink-checkpoints
           name: flink-checkpoints
         - mountPath: /tmp/flink-savepoints
           name: flink-savepoints
-        readinessProbe:
-          httpGet:
-            path: /taskmanagers
-            port: 8081
-            host: flink-jobmanager-service
-          initialDelaySeconds: 20
-          periodSeconds: 10
-        livenessProbe:
-          httpGet:
-            path: /taskmanagers
-            port: 8081
-            host: flink-jobmanager-service
-          initialDelaySeconds: 30
-          periodSeconds: 15
+
       initContainers:
       - name: wait-for-jobmanager
         image: busybox:1.35
