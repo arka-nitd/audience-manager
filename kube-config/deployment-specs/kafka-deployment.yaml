@@ -51,17 +51,17 @@ spec:
             command:
             - /bin/bash
             - -c
-            - "echo ruok | nc localhost 2181 | grep imok"
-          initialDelaySeconds: 10
-          periodSeconds: 5
+            - "echo srvr | nc localhost 2181"
+          initialDelaySeconds: 15
+          periodSeconds: 10
         livenessProbe:
           exec:
             command:
             - /bin/bash
             - -c
-            - "echo ruok | nc localhost 2181 | grep imok"
+            - "echo srvr | nc localhost 2181"
           initialDelaySeconds: 30
-          periodSeconds: 10
+          periodSeconds: 15
       volumes:
       - name: zookeeper-data
         emptyDir: {}
@@ -115,11 +115,11 @@ spec:
           name: jmx
         resources:
           requests:
-            memory: "1000Mi"
-            cpu: "300m"
+            memory: "800Mi"
+            cpu: "200m"
           limits:
             memory: "1200Mi"
-            cpu: "1000m"
+            cpu: "800m"
         env:
         - name: KAFKA_BROKER_ID
           value: "1"
@@ -147,7 +147,7 @@ spec:
           value: "true"
         # Demo-optimized Kafka settings for 1.2GB memory limit
         - name: KAFKA_HEAP_OPTS
-          value: "-Xmx800m -Xms800m"
+          value: "-Xmx600m -Xms600m"
         - name: KAFKA_LOG_RETENTION_HOURS
           value: "24"  # Short retention for demo
         - name: KAFKA_LOG_SEGMENT_BYTES
@@ -172,21 +172,15 @@ spec:
         - mountPath: /var/lib/kafka/data
           name: kafka-data
         readinessProbe:
-          exec:
-            command:
-            - /bin/bash
-            - -c
-            - "kafka-broker-api-versions --bootstrap-server localhost:9092"
-          initialDelaySeconds: 20
-          periodSeconds: 10
-        livenessProbe:
-          exec:
-            command:
-            - /bin/bash
-            - -c
-            - "kafka-broker-api-versions --bootstrap-server localhost:9092"
-          initialDelaySeconds: 40
+          tcpSocket:
+            port: 9092
+          initialDelaySeconds: 45
           periodSeconds: 15
+        livenessProbe:
+          tcpSocket:
+            port: 9092
+          initialDelaySeconds: 60
+          periodSeconds: 30
       initContainers:
       - name: wait-for-zookeeper
         image: busybox:1.35
