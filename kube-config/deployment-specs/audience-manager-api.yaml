@@ -1,0 +1,140 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: audience-manager-api-config
+  namespace: audience-manager-demo
+  labels:
+    app: audience-manager-api
+data:
+  application.yml: |
+    spring:
+      application:
+        name: audience-manager-api
+      datasource:
+        url: jdbc:postgresql://postgres-service:5432/audience_manager
+        username: postgres
+        password: demo123
+        driver-class-name: org.postgresql.Driver
+      jpa:
+        hibernate:
+          ddl-auto: update
+        properties:
+          hibernate:
+            dialect: org.hibernate.dialect.PostgreSQLDialect
+        show-sql: false
+      kafka:
+        bootstrap-servers: kafka-service:9092
+        producer:
+          key-serializer: org.apache.kafka.common.serialization.StringSerializer
+          value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+    server:
+      port: 8080
+      servlet:
+        context-path: /
+
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health,prometheus,metrics,info
+          base-path: /actuator
+      endpoint:
+        health:
+          show-details: always
+      metrics:
+        export:
+          prometheus:
+            enabled: true
+
+    logging:
+      level:
+        com.audiencemanager: INFO
+        org.springframework.kafka: WARN
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audience-manager-api
+  namespace: audience-manager-demo
+  labels:
+    app: audience-manager-api
+    component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: audience-manager-api
+  template:
+    metadata:
+      labels:
+        app: audience-manager-api
+        component: backend
+    spec:
+      containers:
+      - name: audience-manager-api
+        image: audience-manager-api:latest
+        imagePullPolicy: Never  # Use local image
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "kubernetes"
+        - name: SPRING_CONFIG_LOCATION
+          value: "classpath:/application.yml,/app/config/application.yml"
+        - name: JAVA_OPTS
+          value: "-Xmx512m -Xms256m"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /api/v1/segments/health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /api/v1/segments/health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+          readOnly: true
+      volumes:
+      - name: config-volume
+        configMap:
+          name: audience-manager-api-config
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: audience-manager-api-service
+  namespace: audience-manager-demo
+  labels:
+    app: audience-manager-api
+    component: backend
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 30180
+    name: http
+  selector:
+    app: audience-manager-api

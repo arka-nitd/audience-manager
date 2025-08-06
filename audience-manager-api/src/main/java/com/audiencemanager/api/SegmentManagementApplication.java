@@ -2,17 +2,22 @@ package com.audiencemanager.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
- * Main application class for the Segment Management API.
- * This service handles CRUD operations for audience segments and metadata management.
+ * Main application class for the Audience Manager API.
+ * Provides REST endpoints for segment management and metadata operations.
  */
 @SpringBootApplication
-@ComponentScan(basePackages = {
-    "com.audiencemanager.api",
-    "com.audiencemanager.common"
-})
+@EnableJpaAuditing
+@EnableTransactionManagement
+@EnableCaching
+@EnableKafka
+@EnableConfigurationProperties
 public class SegmentManagementApplication {
 
     public static void main(String[] args) {

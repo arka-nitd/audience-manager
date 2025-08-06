@@ -5,22 +5,23 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>com.audiencemanager</groupId>
-        <artifactId>audience-manager-platform</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.18</version>
+        <relativePath/>
     </parent>
+    
+    <properties>
+        <java.version>11</java.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
     
     <artifactId>audience-manager-api</artifactId>
     <name>Audience Manager API</name>
     <description>REST API for segment management and metadata operations</description>
     
     <dependencies>
-        <!-- Internal Dependencies -->
-        <dependency>
-            <groupId>com.audiencemanager</groupId>
-            <artifactId>audience-manager-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         
         <!-- Spring Boot Starters -->
         <dependency>
@@ -44,13 +45,17 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <version>42.7.1</version>
         </dependency>
         
-        <!-- Aerospike Client -->
+        <!-- Aerospike Client - commented out for now due to repository issues -->
+        <!--
         <dependency>
             <groupId>com.aerospike</groupId>
             <artifactId>aerospike-client</artifactId>
+            <version>7.0.1</version>
         </dependency>
+        -->
 
         <!-- Kafka (for publishing segment updates) -->
         <dependency>
@@ -58,11 +63,17 @@
             <artifactId>spring-kafka</artifactId>
         </dependency>
         
-        <!-- OpenAPI Documentation -->
+        <!-- OpenAPI Documentation - Java 11 compatible version -->
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.2.0</version>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.7.0</version>
+        </dependency>
+        
+        <!-- Micrometer for metrics -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
         
         <!-- Testing -->
@@ -71,16 +82,7 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>kafka</artifactId>
-            <scope>test</scope>
-        </dependency>
+
     </dependencies>
     
     <build>

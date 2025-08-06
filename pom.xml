@@ -31,7 +31,6 @@
         <module>audience-manager-api</module>
         <module>audience-manager-ingestion</module>
         <module>audience-manager-processor</module>
-        <module>audience-manager-communication</module>
         <module>audience-manager-infrastructure</module>
     </modules>
     

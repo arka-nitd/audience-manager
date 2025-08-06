@@ -1,0 +1,179 @@
+spring:
+  application:
+    name: audience-manager-api
+  
+  # Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:30432/audience_manager
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        show_sql: false
+    show-sql: false
+
+  # Kafka Configuration
+  kafka:
+    bootstrap-servers: localhost:30092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+    consumer:
+      group-id: segment-api-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+  # Cache Configuration
+  cache:
+    type: simple
+    cache-names:
+      - segments
+      - independent-segments
+
+# Server Configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  compression:
+    enabled: true
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# Management and Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        segment.create: true
+        segment.get: true
+
+# OpenAPI/Swagger Configuration
+springdoc:
+  api-docs:
+    path: /api/docs
+  swagger-ui:
+    path: /api/swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+  info:
+    title: Audience Manager API
+    description: REST API for audience segment management
+    version: 1.0.0
+    contact:
+      name: Audience Manager Team
+      email: team@audiencemanager.com
+
+# Logging Configuration
+logging:
+  level:
+    com.audiencemanager: DEBUG
+    org.springframework.web: INFO
+    org.springframework.kafka: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Application Specific Configuration
+app:
+  segment:
+    max-rules-per-segment: 10
+    max-dependencies-per-segment: 20
+    default-window-minutes: 5
+    max-window-minutes: 1440
+  
+  kafka:
+    topics:
+      segment-updates: segment-updates
+      user-segments: user-segments
+      
+  validation:
+    event-types:
+      - clicks
+      - installs
+      - orders
+      - addToCart
+    operators:
+      - GT
+      - LT
+      - GTE
+      - LTE
+      - EQ
+      - NEQ
+    logical-operators:
+      - AND
+      - OR
+      - NOT
+    attributes:
+      - count
+      - sum
+      - avg
+      - min
+      - max
+
+---
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: dev
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+
+logging:
+  level:
+    com.audiencemanager: DEBUG
+    org.hibernate.SQL: DEBUG
+
+---
+# Production Profile
+spring:
+  config:
+    activate:
+      on-profile: prod
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+logging:
+  level:
+    com.audiencemanager: INFO
+    org.hibernate.SQL: WARN

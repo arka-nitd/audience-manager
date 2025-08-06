@@ -22,5 +22,20 @@ public enum SegmentType {
     /**
      * Lookalike segments based on similarity to seed audiences
      */
-    LOOKALIKE
+    LOOKALIKE;
+
+    /**
+     * Enumeration for distinguishing between independent and derived segments
+     */
+    public enum SegmentCategory {
+        /**
+         * Independent segments based on single rule conditions
+         */
+        INDEPENDENT,
+        
+        /**
+         * Derived segments combining multiple independent segments
+         */
+        DERIVED
+    }
 }
