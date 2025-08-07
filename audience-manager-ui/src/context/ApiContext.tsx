@@ -40,7 +40,7 @@ apiClient.interceptors.response.use(
 // Types
 export interface SegmentRule {
   eventType: string;
-  attribute: string;
+  attribute: 'count' | 'sum';
   operator: string;
   value: string;
 }
@@ -54,7 +54,6 @@ export interface CreateSegmentRequest {
   name: string;
   description?: string;
   type: 'INDEPENDENT' | 'DERIVED';
-  segmentType: 'STATIC' | 'DYNAMIC' | 'COMPUTED' | 'LOOKALIKE';
   windowMinutes?: number;
   logicalExpression?: string;
   rules?: SegmentRule[];
@@ -66,7 +65,6 @@ export interface SegmentResponse {
   name: string;
   description?: string;
   type: 'INDEPENDENT' | 'DERIVED';
-  segmentType: 'STATIC' | 'DYNAMIC' | 'COMPUTED' | 'LOOKALIKE';
   logicalExpression?: string;
   windowMinutes?: number;
   active: boolean;
@@ -124,6 +122,11 @@ class ApiService {
 
   async getIndependentSegments(): Promise<SegmentResponse[]> {
     const response = await apiClient.get<SegmentResponse[]>('/segments/independent');
+    return response.data;
+  }
+
+  async updateSegment(id: string, request: Partial<CreateSegmentRequest>): Promise<SegmentResponse> {
+    const response = await apiClient.put<SegmentResponse>(`/segments/${id}`, request);
     return response.data;
   }
 

@@ -1,8 +1,8 @@
 com/audiencemanager/api/dto/CreateSegmentRequest$DependencyDto.class
 com/audiencemanager/api/repository/SegmentRepository.class
 com/audiencemanager/api/entity/SegmentDependencyEntity.class
+com/audiencemanager/api/entity/SegmentRuleEntity$AttributeType.class
 com/audiencemanager/api/config/MetricsConfig.class
-com/audiencemanager/api/config/KafkaConfig.class
 com/audiencemanager/api/exception/SegmentValidationException.class
 com/audiencemanager/api/entity/SegmentEntity.class
 com/audiencemanager/api/repository/SegmentDependencyRepository.class
@@ -10,7 +10,6 @@ com/audiencemanager/api/entity/SegmentRuleEntity.class
 com/audiencemanager/api/repository/SegmentRuleRepository.class
 com/audiencemanager/api/entity/SegmentDependencyEntity$LogicalOperator.class
 com/audiencemanager/api/service/SegmentService.class
-com/audiencemanager/api/service/SegmentService$SegmentEvent.class
 com/audiencemanager/api/exception/GlobalExceptionHandler$ValidationErrorResponse.class
 com/audiencemanager/api/dto/SegmentResponse$DependencyResponseDto.class
 com/audiencemanager/api/service/SegmentValidationService.class
@@ -18,7 +17,6 @@ com/audiencemanager/api/dto/CreateSegmentRequest.class
 com/audiencemanager/api/entity/SegmentRuleEntity$Operator.class
 com/audiencemanager/api/SegmentManagementApplication.class
 com/audiencemanager/api/dto/CreateSegmentRequest$RuleDto.class
-com/audiencemanager/api/entity/SegmentEntity$SegmentType.class
 com/audiencemanager/api/exception/GlobalExceptionHandler$ErrorResponse.class
 com/audiencemanager/api/entity/SegmentEntity$SegmentCategory.class
 com/audiencemanager/api/dto/SegmentResponse.class

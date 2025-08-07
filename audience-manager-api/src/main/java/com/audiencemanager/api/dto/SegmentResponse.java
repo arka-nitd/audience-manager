@@ -28,8 +28,7 @@ public class SegmentResponse {
     @Schema(description = "Type of segment: INDEPENDENT or DERIVED")
     private SegmentEntity.SegmentCategory type;
 
-    @Schema(description = "Segment category")
-    private SegmentEntity.SegmentType segmentType;
+
 
     @Schema(description = "Logical expression for derived segments")
     private String logicalExpression;
@@ -57,7 +56,7 @@ public class SegmentResponse {
     public static class RuleResponseDto {
         private UUID id;
         private SegmentRuleEntity.EventType eventType;
-        private String attribute;
+        private SegmentRuleEntity.AttributeType attribute;
         private SegmentRuleEntity.Operator operator;
         private BigDecimal value;
         private Integer windowMinutes;
@@ -67,7 +66,7 @@ public class SegmentResponse {
         // Constructors
         public RuleResponseDto() {}
 
-        public RuleResponseDto(UUID id, SegmentRuleEntity.EventType eventType, String attribute,
+        public RuleResponseDto(UUID id, SegmentRuleEntity.EventType eventType, SegmentRuleEntity.AttributeType attribute,
                               SegmentRuleEntity.Operator operator, BigDecimal value, Integer windowMinutes,
                               Boolean active, LocalDateTime createdAt) {
             this.id = id;
@@ -87,8 +86,8 @@ public class SegmentResponse {
         public SegmentRuleEntity.EventType getEventType() { return eventType; }
         public void setEventType(SegmentRuleEntity.EventType eventType) { this.eventType = eventType; }
 
-        public String getAttribute() { return attribute; }
-        public void setAttribute(String attribute) { this.attribute = attribute; }
+        public SegmentRuleEntity.AttributeType getAttribute() { return attribute; }
+        public void setAttribute(SegmentRuleEntity.AttributeType attribute) { this.attribute = attribute; }
 
         public SegmentRuleEntity.Operator getOperator() { return operator; }
         public void setOperator(SegmentRuleEntity.Operator operator) { this.operator = operator; }
@@ -159,8 +158,7 @@ public class SegmentResponse {
     public SegmentEntity.SegmentCategory getType() { return type; }
     public void setType(SegmentEntity.SegmentCategory type) { this.type = type; }
 
-    public SegmentEntity.SegmentType getSegmentType() { return segmentType; }
-    public void setSegmentType(SegmentEntity.SegmentType segmentType) { this.segmentType = segmentType; }
+
 
     public String getLogicalExpression() { return logicalExpression; }
     public void setLogicalExpression(String logicalExpression) { this.logicalExpression = logicalExpression; }

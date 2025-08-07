@@ -35,9 +35,10 @@ public class SegmentRuleEntity {
     @Column(name = "event_type", nullable = false, length = 50)
     private EventType eventType;
 
-    @NotBlank
-    @Column(nullable = false, length = 100)
-    private String attribute;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AttributeType attribute;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -62,6 +63,10 @@ public class SegmentRuleEntity {
     // Enums
     public enum EventType {
         clicks, installs, orders, addToCart
+    }
+
+    public enum AttributeType {
+        count, sum
     }
 
     public enum Operator {
@@ -90,7 +95,7 @@ public class SegmentRuleEntity {
     // Constructors
     public SegmentRuleEntity() {}
 
-    public SegmentRuleEntity(EventType eventType, String attribute, Operator operator, 
+    public SegmentRuleEntity(EventType eventType, AttributeType attribute, Operator operator, 
                             BigDecimal value, Integer windowMinutes) {
         this.eventType = eventType;
         this.attribute = attribute;
@@ -124,11 +129,11 @@ public class SegmentRuleEntity {
         this.eventType = eventType;
     }
 
-    public String getAttribute() {
+    public AttributeType getAttribute() {
         return attribute;
     }
 
-    public void setAttribute(String attribute) {
+    public void setAttribute(AttributeType attribute) {
         this.attribute = attribute;
     }
 

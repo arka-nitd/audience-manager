@@ -57,11 +57,7 @@
         </dependency>
         -->
 
-        <!-- Kafka (for publishing segment updates) -->
-        <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
-        </dependency>
+
         
         <!-- OpenAPI Documentation - Java 11 compatible version -->
         <dependency>

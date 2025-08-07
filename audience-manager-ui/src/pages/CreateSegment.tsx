@@ -29,7 +29,7 @@ import { useApi } from '../context/ApiContext';
 
 interface SegmentRule {
   eventType: string;
-  attribute: string;
+  attribute: 'count' | 'sum';
   operator: string;
   value: string;
   windowMinutes?: number;
@@ -53,17 +53,17 @@ const CreateSegment: React.FC = () => {
     name: '',
     description: '',
     type: 'INDEPENDENT' as 'INDEPENDENT' | 'DERIVED',
-    segmentType: 'STATIC' as 'STATIC' | 'DYNAMIC' | 'COMPUTED' | 'LOOKALIKE',
     active: true,
   });
   
   const [rules, setRules] = useState<SegmentRule[]>([
-    { eventType: 'clicks', attribute: '', operator: 'GT', value: '', windowMinutes: 5 }
+    { eventType: 'clicks', attribute: 'count', operator: 'GT', value: '', windowMinutes: 5 }
   ]);
   
   const [dependencies, setDependencies] = useState<SegmentDependency[]>([]);
 
   const eventTypes = ['clicks', 'installs', 'orders', 'addToCart'];
+  const attributes = ['count', 'sum'];
   const operators = [
     { value: 'GT', label: '>' },
     { value: 'LT', label: '<' },
@@ -72,10 +72,9 @@ const CreateSegment: React.FC = () => {
     { value: 'LTE', label: '<=' },
     { value: 'NEQ', label: '!=' },
   ];
-  const segmentTypes = ['STATIC', 'DYNAMIC', 'COMPUTED', 'LOOKALIKE'];
 
   const handleAddRule = () => {
-    setRules([...rules, { eventType: 'clicks', attribute: '', operator: 'GT', value: '', windowMinutes: 5 }]);
+    setRules([...rules, { eventType: 'clicks', attribute: 'count', operator: 'GT', value: '', windowMinutes: 5 }]);
   };
 
   const handleRemoveRule = (index: number) => {
@@ -198,20 +197,7 @@ const CreateSegment: React.FC = () => {
                   </Select>
                 </FormControl>
 
-                <FormControl fullWidth required>
-                  <InputLabel>Segment Type</InputLabel>
-                  <Select
-                    value={formData.segmentType}
-                    label="Segment Type"
-                    onChange={(e) => setFormData({ ...formData, segmentType: e.target.value })}
-                  >
-                    {segmentTypes.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        {type.replace('_', ' ')}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+
               </Stack>
             </CardContent>
           </Card>
@@ -269,13 +255,20 @@ const CreateSegment: React.FC = () => {
                             </Select>
                           </FormControl>
 
-                          <TextField
-                            label="Attribute"
-                            value={rule.attribute}
-                            onChange={(e) => handleRuleChange(index, 'attribute', e.target.value)}
-                            placeholder="e.g., count, amount"
-                            sx={{ minWidth: 120 }}
-                          />
+                          <FormControl sx={{ minWidth: 120 }}>
+                            <InputLabel>Attribute</InputLabel>
+                            <Select
+                              value={rule.attribute}
+                              label="Attribute"
+                              onChange={(e) => handleRuleChange(index, 'attribute', e.target.value)}
+                            >
+                              {attributes.map((attr) => (
+                                <MenuItem key={attr} value={attr}>
+                                  {attr}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
 
                           <FormControl sx={{ minWidth: 100 }}>
                             <InputLabel>Operator</InputLabel>

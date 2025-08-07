@@ -4,7 +4,6 @@
 /Users/arka.roy/Documents/Project2/audience-manager/audience-manager-api/src/main/java/com/audiencemanager/api/controller/SegmentController.java
 /Users/arka.roy/Documents/Project2/audience-manager/audience-manager-api/src/main/java/com/audiencemanager/api/repository/SegmentDependencyRepository.java
 /Users/arka.roy/Documents/Project2/audience-manager/audience-manager-api/src/main/java/com/audiencemanager/api/repository/SegmentRuleRepository.java
-/Users/arka.roy/Documents/Project2/audience-manager/audience-manager-api/src/main/java/com/audiencemanager/api/config/KafkaConfig.java
 /Users/arka.roy/Documents/Project2/audience-manager/audience-manager-api/src/main/java/com/audiencemanager/api/entity/SegmentEntity.java
 /Users/arka.roy/Documents/Project2/audience-manager/audience-manager-api/src/main/java/com/audiencemanager/api/exception/SegmentNotFoundException.java
 /Users/arka.roy/Documents/Project2/audience-manager/audience-manager-api/src/main/java/com/audiencemanager/api/config/OpenApiConfig.java

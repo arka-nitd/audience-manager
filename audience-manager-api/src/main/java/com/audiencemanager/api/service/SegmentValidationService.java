@@ -112,7 +112,7 @@ public class SegmentValidationService {
             throw new SegmentValidationException("Rule event type is required");
         }
 
-        if (rule.getAttribute() == null || rule.getAttribute().trim().isEmpty()) {
+        if (rule.getAttribute() == null) {
             throw new SegmentValidationException("Rule attribute is required");
         }
 
@@ -139,12 +139,12 @@ public class SegmentValidationService {
     /**
      * Validate attribute names for event types
      */
-    private void validateAttributeForEventType(com.audiencemanager.api.entity.SegmentRuleEntity.EventType eventType, String attribute) {
-        Set<String> validAttributes = Set.of("count", "sum", "avg", "min", "max");
-        
-        if (!validAttributes.contains(attribute.toLowerCase())) {
-            throw new SegmentValidationException("Invalid attribute '" + attribute + "' for event type " + eventType + 
-                    ". Valid attributes: " + validAttributes);
+    private void validateAttributeForEventType(com.audiencemanager.api.entity.SegmentRuleEntity.EventType eventType, 
+                                             com.audiencemanager.api.entity.SegmentRuleEntity.AttributeType attribute) {
+        // Since we now use AttributeType enum, we only allow 'count' and 'sum'
+        // The enum itself validates the values, so this method mainly exists for consistency
+        if (attribute == null) {
+            throw new SegmentValidationException("Attribute is required for event type " + eventType);
         }
     }
 

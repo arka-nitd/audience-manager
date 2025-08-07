@@ -31,9 +31,7 @@ public class CreateSegmentRequest {
     @Schema(description = "Type of segment: INDEPENDENT or DERIVED")
     private SegmentEntity.SegmentCategory type;
 
-    @NotNull(message = "Segment category is required")
-    @Schema(description = "Segment category", example = "DYNAMIC")
-    private SegmentEntity.SegmentType segmentType = SegmentEntity.SegmentType.DYNAMIC;
+
 
     @Positive(message = "Window minutes must be positive")
     @Max(value = 1440, message = "Window minutes cannot exceed 1440 (24 hours)")
@@ -59,9 +57,9 @@ public class CreateSegmentRequest {
         @Schema(description = "Type of event", allowableValues = {"clicks", "installs", "orders", "addToCart"})
         private SegmentRuleEntity.EventType eventType;
 
-        @NotBlank(message = "Attribute is required")
-        @Schema(description = "Attribute to evaluate", example = "count")
-        private String attribute;
+        @NotNull(message = "Attribute is required")
+        @Schema(description = "Attribute to evaluate", allowableValues = {"count", "sum"})
+        private SegmentRuleEntity.AttributeType attribute;
 
         @NotNull(message = "Operator is required")
         @Schema(description = "Comparison operator", allowableValues = {"GT", "LT", "GTE", "LTE", "EQ", "NEQ"})
@@ -80,7 +78,7 @@ public class CreateSegmentRequest {
         // Constructors
         public RuleDto() {}
 
-        public RuleDto(SegmentRuleEntity.EventType eventType, String attribute, 
+        public RuleDto(SegmentRuleEntity.EventType eventType, SegmentRuleEntity.AttributeType attribute, 
                       SegmentRuleEntity.Operator operator, BigDecimal value, Integer windowMinutes) {
             this.eventType = eventType;
             this.attribute = attribute;
@@ -93,8 +91,8 @@ public class CreateSegmentRequest {
         public SegmentRuleEntity.EventType getEventType() { return eventType; }
         public void setEventType(SegmentRuleEntity.EventType eventType) { this.eventType = eventType; }
 
-        public String getAttribute() { return attribute; }
-        public void setAttribute(String attribute) { this.attribute = attribute; }
+        public SegmentRuleEntity.AttributeType getAttribute() { return attribute; }
+        public void setAttribute(SegmentRuleEntity.AttributeType attribute) { this.attribute = attribute; }
 
         public SegmentRuleEntity.Operator getOperator() { return operator; }
         public void setOperator(SegmentRuleEntity.Operator operator) { this.operator = operator; }
@@ -146,8 +144,7 @@ public class CreateSegmentRequest {
     public SegmentEntity.SegmentCategory getType() { return type; }
     public void setType(SegmentEntity.SegmentCategory type) { this.type = type; }
 
-    public SegmentEntity.SegmentType getSegmentType() { return segmentType; }
-    public void setSegmentType(SegmentEntity.SegmentType segmentType) { this.segmentType = segmentType; }
+
 
     public Integer getWindowMinutes() { return windowMinutes; }
     public void setWindowMinutes(Integer windowMinutes) { this.windowMinutes = windowMinutes; }

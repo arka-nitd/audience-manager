@@ -238,7 +238,7 @@ const SimpleSegmentList: React.FC = () => {
                           variant="outlined"
                         />
                         <Chip
-                          label={segment.segmentType}
+                          label={segment.type}
                           size="small"
                           variant="outlined"
                         />

@@ -34,10 +34,7 @@ public interface SegmentRepository extends JpaRepository<SegmentEntity, UUID> {
      */
     List<SegmentEntity> findByType(SegmentEntity.SegmentCategory type);
 
-    /**
-     * Find all segments by segment type
-     */
-    List<SegmentEntity> findBySegmentType(SegmentEntity.SegmentType segmentType);
+
 
     /**
      * Find all active segments
@@ -54,10 +51,7 @@ public interface SegmentRepository extends JpaRepository<SegmentEntity, UUID> {
      */
     Page<SegmentEntity> findByTypeAndActive(SegmentEntity.SegmentCategory type, Boolean active, Pageable pageable);
 
-    /**
-     * Find segments by segment type and active status
-     */
-    Page<SegmentEntity> findBySegmentTypeAndActive(SegmentEntity.SegmentType segmentType, Boolean active, Pageable pageable);
+
 
     /**
      * Find all independent segments (for use in derived segments)

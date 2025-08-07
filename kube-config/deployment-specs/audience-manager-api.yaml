@@ -23,11 +23,6 @@ data:
           hibernate:
             dialect: org.hibernate.dialect.PostgreSQLDialect
         show-sql: false
-      kafka:
-        bootstrap-servers: kafka-service:9092
-        producer:
-          key-serializer: org.apache.kafka.common.serialization.StringSerializer
-          value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
     server:
       port: 8080
@@ -51,7 +46,7 @@ data:
     logging:
       level:
         com.audiencemanager: INFO
-        org.springframework.kafka: WARN
+
 
 ---
 apiVersion: apps/v1

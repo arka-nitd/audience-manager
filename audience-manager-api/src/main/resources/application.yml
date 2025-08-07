@@ -26,20 +26,7 @@ spring:
         show_sql: false
     show-sql: false
 
-  # Kafka Configuration
-  kafka:
-    bootstrap-servers: localhost:30092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      properties:
-        spring.json.add.type.headers: false
-    consumer:
-      group-id: segment-api-group
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: "*"
+
 
   # Cache Configuration
   cache:
@@ -99,7 +86,7 @@ logging:
   level:
     com.audiencemanager: DEBUG
     org.springframework.web: INFO
-    org.springframework.kafka: INFO
+
     org.hibernate.SQL: INFO
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   pattern:
@@ -114,11 +101,7 @@ app:
     default-window-minutes: 5
     max-window-minutes: 1440
   
-  kafka:
-    topics:
-      segment-updates: segment-updates
-      user-segments: user-segments
-      
+
   validation:
     event-types:
       - clicks

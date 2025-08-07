@@ -8,6 +8,8 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import SimpleSegmentList from './pages/SimpleSegmentList';
 import CreateSegment from './pages/CreateSegment';
+import SegmentDetails from './pages/SegmentDetails';
+import EditSegment from './pages/EditSegment';
 // import CreateSegment from './pages/CreateSegment';
 // import SegmentDetails from './pages/SegmentDetails';
 import { ApiProvider } from './context/ApiContext';
@@ -97,7 +99,8 @@ function App() {
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/segments" element={<SimpleSegmentList />} />
                   <Route path="/segments/create" element={<CreateSegment />} />
-                  <Route path="/segments/:id" element={<div>Segment Details - Coming Soon</div>} />
+                  <Route path="/segments/:id/edit" element={<EditSegment />} />
+                  <Route path="/segments/:id" element={<SegmentDetails />} />
                 </Routes>
               </Box>
             </Box>

@@ -179,6 +179,31 @@ public class SegmentController {
     }
 
     /**
+     * Update a segment
+     */
+    @PutMapping("/{id}")
+    @Operation(summary = "Update segment", description = "Update an existing segment with new configuration")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Segment updated successfully",
+                content = @Content(schema = @Schema(implementation = SegmentResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Segment not found"),
+        @ApiResponse(responseCode = "400", description = "Invalid request data")
+    })
+    @Timed(value = "segment.update.time", description = "Time taken to update segment")
+    @Counted(value = "segment.update.count", description = "Total number of segment updates")
+    public ResponseEntity<SegmentResponse> updateSegment(
+            @Parameter(description = "Segment ID") @PathVariable UUID id,
+            @Valid @RequestBody CreateSegmentRequest request) {
+        
+        logger.info("Updating segment with ID: {}", id);
+        
+        SegmentResponse updatedSegment = segmentService.updateSegment(id, request);
+        
+        logger.info("Successfully updated segment: {}", updatedSegment.getName());
+        return ResponseEntity.ok(updatedSegment);
+    }
+
+    /**
      * Update segment status (activate/deactivate)
      */
     @PatchMapping("/{id}/status")

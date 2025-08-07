@@ -42,18 +42,9 @@ public class SegmentEntity {
     @Column(nullable = false, length = 20)
     private SegmentCategory type;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "segment_type", nullable = false, length = 20)
-    private SegmentType segmentType;
-
     // Enums
     public enum SegmentCategory {
         INDEPENDENT, DERIVED
-    }
-
-    public enum SegmentType {
-        STATIC, DYNAMIC, COMPUTED, LOOKALIKE
     }
 
     @Column(name = "logical_expression", columnDefinition = "TEXT")
@@ -84,12 +75,10 @@ public class SegmentEntity {
     // Constructors
     public SegmentEntity() {}
 
-    public SegmentEntity(String name, String description, SegmentCategory type, 
-                        SegmentType segmentType, Integer windowMinutes) {
+    public SegmentEntity(String name, String description, SegmentCategory type, Integer windowMinutes) {
         this.name = name;
         this.description = description;
         this.type = type;
-        this.segmentType = segmentType;
         this.windowMinutes = windowMinutes;
     }
 
@@ -126,13 +115,7 @@ public class SegmentEntity {
         this.type = type;
     }
 
-    public SegmentType getSegmentType() {
-        return segmentType;
-    }
 
-    public void setSegmentType(SegmentType segmentType) {
-        this.segmentType = segmentType;
-    }
 
     public String getLogicalExpression() {
         return logicalExpression;
@@ -230,7 +213,6 @@ public class SegmentEntity {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", type=" + type +
-                ", segmentType=" + segmentType +
                 ", active=" + active +
                 '}';
     }

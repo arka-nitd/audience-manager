@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.kafka.core.KafkaTemplate;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,19 +39,16 @@ public class SegmentService {
     private final SegmentRepository segmentRepository;
     private final SegmentRuleRepository segmentRuleRepository;
     private final SegmentDependencyRepository segmentDependencyRepository;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
     private final SegmentValidationService validationService;
 
     @Autowired
     public SegmentService(SegmentRepository segmentRepository,
                          SegmentRuleRepository segmentRuleRepository,
                          SegmentDependencyRepository segmentDependencyRepository,
-                         KafkaTemplate<String, Object> kafkaTemplate,
                          SegmentValidationService validationService) {
         this.segmentRepository = segmentRepository;
         this.segmentRuleRepository = segmentRuleRepository;
         this.segmentDependencyRepository = segmentDependencyRepository;
-        this.kafkaTemplate = kafkaTemplate;
         this.validationService = validationService;
     }
 
@@ -76,7 +73,6 @@ public class SegmentService {
                 request.getName(),
                 request.getDescription(),
                 request.getType(),
-                request.getSegmentType(),
                 request.getWindowMinutes()
         );
 
@@ -120,8 +116,7 @@ public class SegmentService {
         // Save with relationships
         segment = segmentRepository.save(segment);
 
-        // Publish segment creation event to Kafka
-        publishSegmentEvent("segment-updates", "SEGMENT_CREATED", segment);
+
 
         return convertToResponse(segment);
     }
@@ -172,6 +167,72 @@ public class SegmentService {
     }
 
     /**
+     * Update an existing segment
+     */
+    @Timed(value = "segment.update", description = "Time taken to update segment")
+    public SegmentResponse updateSegment(UUID id, CreateSegmentRequest request) {
+        logger.info("Updating segment {} with new configuration", id);
+
+        SegmentEntity segment = segmentRepository.findById(id)
+                .orElseThrow(() -> new SegmentNotFoundException("Segment not found: " + id));
+
+        // Update basic properties
+        segment.setName(request.getName());
+        segment.setDescription(request.getDescription());
+        segment.setWindowMinutes(request.getWindowMinutes());
+        segment.setLogicalExpression(request.getLogicalExpression());
+
+        // Remove existing rules
+        if (segment.getRules() != null) {
+            segmentRuleRepository.deleteAll(segment.getRules());
+            segment.getRules().clear();
+        }
+
+        // Remove existing dependencies
+        if (segment.getDependencies() != null) {
+            segmentDependencyRepository.deleteAll(segment.getDependencies());
+            segment.getDependencies().clear();
+        }
+
+        // Add new rules for independent segments
+        if (segment.getType() == SegmentEntity.SegmentCategory.INDEPENDENT && request.getRules() != null) {
+            for (CreateSegmentRequest.RuleDto ruleDto : request.getRules()) {
+                SegmentRuleEntity rule = new SegmentRuleEntity(
+                        ruleDto.getEventType(),
+                        ruleDto.getAttribute(),
+                        ruleDto.getOperator(),
+                        ruleDto.getValue(),
+                        ruleDto.getWindowMinutes()
+                );
+                segment.addRule(rule);
+            }
+        }
+
+        // Add new dependencies for derived segments
+        if (segment.getType() == SegmentEntity.SegmentCategory.DERIVED && request.getDependencies() != null) {
+            for (CreateSegmentRequest.DependencyDto depDto : request.getDependencies()) {
+                SegmentEntity independentSegment = segmentRepository.findById(depDto.getIndependentSegmentId())
+                        .orElseThrow(() -> new SegmentNotFoundException("Independent segment not found: " + depDto.getIndependentSegmentId()));
+
+                SegmentDependencyEntity dependency = new SegmentDependencyEntity(
+                        segment,
+                        independentSegment,
+                        depDto.getLogicalOperator()
+                );
+                segment.addDependency(dependency);
+            }
+        }
+
+        // Save the updated segment
+        segment = segmentRepository.save(segment);
+
+
+
+        logger.info("Successfully updated segment: {}", segment.getName());
+        return convertToResponse(segment);
+    }
+
+    /**
      * Update segment status (activate/deactivate)
      */
     @Timed(value = "segment.update.status", description = "Time taken to update segment status")
@@ -184,8 +245,7 @@ public class SegmentService {
         segment.setActive(active);
         segment = segmentRepository.save(segment);
 
-        // Publish status change event
-        publishSegmentEvent("segment-updates", "SEGMENT_STATUS_CHANGED", segment);
+
 
         return convertToResponse(segment);
     }
@@ -206,8 +266,7 @@ public class SegmentService {
             throw new SegmentValidationException("Cannot delete segment. It is used in " + dependentCount + " derived segments");
         }
 
-        // Publish deletion event before deleting
-        publishSegmentEvent("segment-updates", "SEGMENT_DELETED", segment);
+
 
         segmentRepository.delete(segment);
         logger.info("Deleted segment: {}", id);
@@ -245,7 +304,6 @@ public class SegmentService {
         response.setName(entity.getName());
         response.setDescription(entity.getDescription());
         response.setType(entity.getType());
-        response.setSegmentType(entity.getSegmentType());
         response.setLogicalExpression(entity.getLogicalExpression());
         response.setWindowMinutes(entity.getWindowMinutes());
         response.setActive(entity.getActive());
@@ -286,42 +344,5 @@ public class SegmentService {
         return response;
     }
 
-    /**
-     * Publish segment events to Kafka
-     */
-    private void publishSegmentEvent(String topic, String eventType, SegmentEntity segment) {
-        try {
-            var event = new SegmentEvent(eventType, segment.getId(), segment.getName(), 
-                                       segment.getType(), LocalDateTime.now());
-            kafkaTemplate.send(topic, segment.getId().toString(), event);
-            logger.debug("Published {} event for segment: {}", eventType, segment.getId());
-        } catch (Exception e) {
-            logger.error("Failed to publish segment event", e);
-            // Don't fail the operation if event publishing fails
-        }
-    }
 
-    // Event DTO for Kafka
-    private static class SegmentEvent {
-        private final String eventType;
-        private final UUID segmentId;
-        private final String segmentName;
-        private final SegmentEntity.SegmentCategory type;
-        private final LocalDateTime timestamp;
-
-        public SegmentEvent(String eventType, UUID segmentId, String segmentName, 
-                           SegmentEntity.SegmentCategory type, LocalDateTime timestamp) {
-            this.eventType = eventType;
-            this.segmentId = segmentId;
-            this.segmentName = segmentName;
-            this.type = type;
-            this.timestamp = timestamp;
-        }
-
-        public String getEventType() { return eventType; }
-        public UUID getSegmentId() { return segmentId; }
-        public String getSegmentName() { return segmentName; }
-        public SegmentEntity.SegmentCategory getType() { return type; }
-        public LocalDateTime getTimestamp() { return timestamp; }
-    }
 }
