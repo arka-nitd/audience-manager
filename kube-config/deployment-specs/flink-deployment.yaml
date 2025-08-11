@@ -24,6 +24,8 @@ spec:
         ports:
         - containerPort: 6123
           name: rpc
+        - containerPort: 6124
+          name: blob
         - containerPort: 8081
           name: webui
         resources:
@@ -37,9 +39,14 @@ spec:
         - name: FLINK_PROPERTIES
           value: |
             jobmanager.rpc.address: flink-jobmanager-service
+            blob.server.port: 6124
+            blob.client.connect.timeout: 60000
+            jobmanager.rpc.port: 6123
             taskmanager.numberOfTaskSlots: 2
             parallelism.default: 2
             jobmanager.memory.heap.size: 400m
+            taskmanager.memory.process.size: 1200m
+            taskmanager.memory.framework.heap.size: 128m
             state.backend: rocksdb
             state.checkpoints.dir: file:///tmp/flink-checkpoints
             state.savepoints.dir: file:///tmp/flink-savepoints
@@ -86,6 +93,9 @@ spec:
   - name: rpc
     port: 6123
     targetPort: 6123
+  - name: blob
+    port: 6124
+    targetPort: 6124
   - name: webui
     port: 8081
     targetPort: 8081
@@ -131,8 +141,13 @@ spec:
         - name: FLINK_PROPERTIES
           value: |
             jobmanager.rpc.address: flink-jobmanager-service
+            blob.server.port: 6124
+            blob.client.connect.timeout: 60000
+            jobmanager.rpc.port: 6123
             taskmanager.numberOfTaskSlots: 2
             parallelism.default: 2
+            taskmanager.memory.process.size: 1200m
+            taskmanager.memory.framework.heap.size: 128m
             state.backend: rocksdb
             state.checkpoints.dir: file:///tmp/flink-checkpoints
             state.savepoints.dir: file:///tmp/flink-savepoints

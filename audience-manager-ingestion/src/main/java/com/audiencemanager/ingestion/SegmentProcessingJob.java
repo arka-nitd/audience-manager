@@ -43,7 +43,7 @@ public class SegmentProcessingJob {
     // Aerospike Configuration
     private static final String AEROSPIKE_HOST = "aerospike-service";
     private static final int AEROSPIKE_PORT = 3000;
-    private static final String AEROSPIKE_NAMESPACE = "segments";
+    private static final String AEROSPIKE_NAMESPACE = "cache";
     private static final String AEROSPIKE_SET = "user_segments";
     
     // API Configuration

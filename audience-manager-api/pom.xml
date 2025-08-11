@@ -66,6 +66,12 @@
             <version>1.7.0</version>
         </dependency>
         
+        <!-- Kafka for event generation -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+        
         <!-- Micrometer for metrics -->
         <dependency>
             <groupId>io.micrometer</groupId>

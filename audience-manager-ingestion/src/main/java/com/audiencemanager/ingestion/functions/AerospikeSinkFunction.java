@@ -77,12 +77,12 @@ public class AerospikeSinkFunction extends RichSinkFunction<SegmentResult> {
             
             // If record exists, read current data
             if (existingRecord != null) {
-                Object segments = existingRecord.getValue("qualifiedSegments");
+                Object segments = existingRecord.getValue("segments");
                 if (segments instanceof List) {
                     qualifiedSegments = new ArrayList<>((List<String>) segments);
                 }
                 
-                Object rules = existingRecord.getValue("ruleResults");
+                Object rules = existingRecord.getValue("results");
                 if (rules instanceof Map) {
                     ruleResults = new HashMap<>((Map<String, Object>) rules);
                 }
@@ -109,11 +109,11 @@ public class AerospikeSinkFunction extends RichSinkFunction<SegmentResult> {
                 ruleResults.remove(result.getRuleId());
             }
             
-            // Prepare bins for Aerospike
+            // Prepare bins for Aerospike (max 14 chars for bin names)
             Bin userIdBin = new Bin("userId", result.getUserId());
-            Bin segmentsBin = new Bin("qualifiedSegments", qualifiedSegments);
+            Bin segmentsBin = new Bin("segments", qualifiedSegments);
             Bin lastUpdatedBin = new Bin("lastUpdated", result.getTimestamp());
-            Bin ruleResultsBin = new Bin("ruleResults", ruleResults);
+            Bin ruleResultsBin = new Bin("results", ruleResults);
             
             // Write to Aerospike
             client.put(writePolicy, key, userIdBin, segmentsBin, lastUpdatedBin, ruleResultsBin);
