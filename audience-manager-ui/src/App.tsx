@@ -10,8 +10,7 @@ import SimpleSegmentList from './pages/SimpleSegmentList';
 import CreateSegment from './pages/CreateSegment';
 import SegmentDetails from './pages/SegmentDetails';
 import EditSegment from './pages/EditSegment';
-// import CreateSegment from './pages/CreateSegment';
-// import SegmentDetails from './pages/SegmentDetails';
+import EventGenerator from './pages/EventGenerator';
 import { ApiProvider } from './context/ApiContext';
 
 // Create a modern, clean theme
@@ -101,6 +100,7 @@ function App() {
                   <Route path="/segments/create" element={<CreateSegment />} />
                   <Route path="/segments/:id/edit" element={<EditSegment />} />
                   <Route path="/segments/:id" element={<SegmentDetails />} />
+                  <Route path="/events/generate" element={<EventGenerator />} />
                 </Routes>
               </Box>
             </Box>

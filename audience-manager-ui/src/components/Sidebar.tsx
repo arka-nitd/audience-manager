@@ -16,6 +16,7 @@ import {
   Group as GroupIcon,
   Add as AddIcon,
   Analytics as AnalyticsIcon,
+  Create as GenerateIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -46,6 +47,12 @@ const navigationItems: NavigationItem[] = [
     label: 'Create Segment',
     icon: <AddIcon />,
     path: '/segments/create',
+  },
+  {
+    id: 'event-generator',
+    label: 'Event Generator',
+    icon: <GenerateIcon />,
+    path: '/events/generate',
   },
 ];
 

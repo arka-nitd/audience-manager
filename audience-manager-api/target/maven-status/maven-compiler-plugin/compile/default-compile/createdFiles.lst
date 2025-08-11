@@ -8,8 +8,10 @@ com/audiencemanager/api/entity/SegmentEntity.class
 com/audiencemanager/api/repository/SegmentDependencyRepository.class
 com/audiencemanager/api/entity/SegmentRuleEntity.class
 com/audiencemanager/api/repository/SegmentRuleRepository.class
+com/audiencemanager/api/service/SegmentRulesService.class
 com/audiencemanager/api/entity/SegmentDependencyEntity$LogicalOperator.class
 com/audiencemanager/api/service/SegmentService.class
+com/audiencemanager/api/controller/SegmentRulesController.class
 com/audiencemanager/api/exception/GlobalExceptionHandler$ValidationErrorResponse.class
 com/audiencemanager/api/dto/SegmentResponse$DependencyResponseDto.class
 com/audiencemanager/api/service/SegmentValidationService.class
@@ -18,6 +20,7 @@ com/audiencemanager/api/entity/SegmentRuleEntity$Operator.class
 com/audiencemanager/api/SegmentManagementApplication.class
 com/audiencemanager/api/dto/CreateSegmentRequest$RuleDto.class
 com/audiencemanager/api/exception/GlobalExceptionHandler$ErrorResponse.class
+com/audiencemanager/api/dto/SegmentRuleDto.class
 com/audiencemanager/api/entity/SegmentEntity$SegmentCategory.class
 com/audiencemanager/api/dto/SegmentResponse.class
 com/audiencemanager/api/controller/SegmentController.class
